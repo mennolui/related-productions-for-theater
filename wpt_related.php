@@ -17,3 +17,5 @@
 		}
 		
 	}
+	
+	new WPT_Related();

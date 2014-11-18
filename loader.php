@@ -21,11 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @return void
  */
 function wpt_related_loader() {
-	global $wp_theatre;
-	
 	require_once(dirname(__FILE__) . '/wpt_related.php');		
-
-	$wp_theatre->related = new WPT_Related();
+	
 }
 
 add_action('wpt_loaded', 'wpt_related_loader');
