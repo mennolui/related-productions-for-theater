@@ -21,8 +21,11 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @return void
  */
 function wpt_related_loader() {
-	require_once(dirname(__FILE__) . '/wpt_related.php');		
-	
+	require_once(dirname(__FILE__) . '/includes/wpt_related.php');		
+
+	if (is_admin()) {
+		require_once(dirname(__FILE__) . '/includes/wpt_related_admin.php');			
+	}
 }
 
 add_action('wpt_loaded', 'wpt_related_loader');
