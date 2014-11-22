@@ -21,11 +21,18 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * @return void
  */
 function wpt_related_loader() {
-	require_once(dirname(__FILE__) . '/includes/wpt_related.php');		
+	global $wp_theatre;
+	
+	require_once(dirname(__FILE__) . '/includes/wpt_related.php');	
 
-	if (is_admin()) {
-		require_once(dirname(__FILE__) . '/includes/wpt_related_admin.php');			
-	}
+	/**
+	 * Add an instance of your class to the global Theater object.
+	 * 
+	 * @var mixed
+	 * @access public
+	 */
+	$wp_theatre->related = new WPT_Related();
+
 }
 
 add_action('wpt_loaded', 'wpt_related_loader');
