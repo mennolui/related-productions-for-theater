@@ -28,8 +28,7 @@ function wpt_related_loader() {
 	/**
 	 * Add an instance of your class to the global Theater object.
 	 * 
-	 * @var mixed
-	 * @access public
+	 * Requires Theater 0.9.4.
 	 */
 	$wp_theatre->related = new WPT_Related();
 
