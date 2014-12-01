@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Related Productions for Theater
-Version: 0.1
+Version: 0.1.1
 Description: Add related productions to the Theater for WordPress plugin.
 Author: Menno Luitjes
 Author URI: http://mennoluitjes.nl
@@ -11,6 +11,8 @@ Domain Path: /languages
 */
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+$wpt_related_version = '0.1.1';
 
 /**
  * Loads the WPT_Related class.

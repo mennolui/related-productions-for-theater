@@ -9,8 +9,14 @@
 	 */
 	 
 	class WPT_Related {
+
+		const manual_name = 'wpt_related_prod_manual';
 		
 		function __construct() {
+
+			// Set version
+			global $wpt_related_version;
+			$this->wpt_related_version = $wpt_related_version;
 
 			// A unique identifier for your plugin.
 			$this->slug = 'wpt_related';
@@ -23,7 +29,8 @@
 			
 			$this->load_sub_classes();
 
-			// Go Menno!
+
+			add_filter('wpt_production_page_content_after',array($this,'wpt_production_page_content_after'));
 
 		}
 		
@@ -39,5 +46,66 @@
 				$this->admin = new WPT_Related_Admin();
 			}			
 		}
-		
+
+		function wpt_production_page_content_after($after) {
+			$after .= $this->get_related_prods_html();
+
+			return $after;
+		}
+
+		function get_related_prods_html() {
+			$related_prods = $this->get_related_prods();
+			if (count($related_prods) > 0) {
+				$html .= '<h3>'.__('Related productions','wpt_related').'</h3>';
+				$html .= '<ul>';
+				foreach ($related_prods as $related_prod) {
+					$html .= '<li>'.get_the_title($related_prod).'</li>';
+				}
+				$html .= '</ul>';
+			}
+			return $html;
+		}
+
+		function get_related_prods() {
+			global $wp_theatre;
+			$limit = $wp_theatre->related->options['wpt_related_limit'];
+
+			$related_prods = $this->get_related_prods_manual();
+			if (count($related_prods) < $limit) {
+				// add some more
+				$related_prods = array_merge($related_prods,$this->get_related_prods_manual_after());
+				if (count($related_prods) < $limit) {
+					// add even more
+					$related_prods = array_merge($related_prods,$this->get_related_prods_category());
+				}
+			}
+
+			// make sure we're not over the limit
+			$related_prods = array_slice($related_prods,0,$limit);
+
+			return $related_prods;
+		}
+
+		function get_related_prods_manual() {
+			global $post;
+			$related_prods_manual = get_post_meta($post->ID,WPT_Related::manual_name,true);
+			return $related_prods_manual;
+		}
+
+		function get_related_prods_manual_after() {
+			$related_prods_manual_after = array();
+
+			/**
+			 * Filter the related prods after the manual related prods
+			 *
+			 * @param array  $related_prods_manual_after	The current related prods after the manual related prods.
+			 */	
+			$related_prods_manual_after = apply_filters('wpt_related_prods_manual_after', $related_prods_manual_after);
+			return $related_prods_manual_after;
+		}
+
+		function get_related_prods_category() {
+			//@todo: return upcoming productions from same category
+			return array();
+		}
 	}
