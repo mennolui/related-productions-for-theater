@@ -59,7 +59,8 @@
 				$html .= '<h3>'.__('Related productions','wpt_related').'</h3>';
 				$html .= '<ul>';
 				foreach ($related_prods as $related_prod) {
-					$html .= '<li>'.get_the_title($related_prod).'</li>';
+					$production = new WPT_Production($related_prod);
+					$html .= '<li>'.$production->html().'</li>';
 				}
 				$html .= '</ul>';
 			}

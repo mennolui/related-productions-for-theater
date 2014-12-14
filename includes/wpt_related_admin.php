@@ -25,6 +25,11 @@ class WPT_Related_Admin {
 		
 		global $wp_theatre;	
 
+		wp_enqueue_script('wpt_related_admin', plugins_url( '../js/admin.js', __FILE__ ), array('jquery', 'jquery-ui-sortable'));
+		wp_enqueue_script('select2', '//cdnjs.cloudflare.com/ajax/libs/select2/3.5.2/select2.min.js', array('jquery'));
+		wp_enqueue_style('select2', '//cdnjs.cloudflare.com/ajax/libs/select2/3.5.2/select2.css');
+		wp_enqueue_style('wpt_related_admin', plugins_url( '../css/admin.css', __FILE__ ));
+
         register_setting(
             $wp_theatre->related->slug, // Option group
             $wp_theatre->related->slug // Option name
@@ -74,20 +79,26 @@ class WPT_Related_Admin {
 			'post_type'=>WPT_Production::post_type_name,
 			'posts_per_page' => -1
 		);
+		$prods = get_posts($args);
 
 		$related_prods_manual = get_post_meta($production->ID,WPT_Related::manual_name,true);
 
-		$prods = get_posts($args);
-		echo '<select multiple="multiple" name="'.WPT_Related::manual_name.'[]">';
-		echo '<option></option>';
+		echo '<select multiple="multiple" name="'.WPT_Related::manual_name.'[]" id="'.WPT_Related::manual_name.'" data-placeholder="'.__('Select productions','wpt_related').'" stye="width: 100%;">';
+
+		if (count($related_prods_manual)>0) {
+			// list selected productions first to maintain sort order
+			foreach ($related_prods_manual as $prod_id) {
+				echo '<option value="'.$prod_id.'" selected="selected">';
+				echo get_the_title($prod_id);
+				echo '</option>';
+			}
+		}
+
 		if (count($prods)>0) {
+			// list remaining productions
 			foreach ($prods as $prod) {
-				if ($prod->ID != $production->ID) {
-					echo '<option value="'.$prod->ID.'"';
-					if (in_array($prod->ID,$related_prods_manual)) {
-						echo ' selected="selected"';
-					}
-					echo '>';
+				if (($prod->ID != $production->ID) && (!in_array($prod->ID,$related_prods_manual))) {
+					echo '<option value="'.$prod->ID.'">';
 					echo $prod->post_title;
 					echo '</option>';
 				}
@@ -128,7 +139,7 @@ class WPT_Related_Admin {
 
 		// Sanitize the user input.
 		$related_prods_manual = array_map('sanitize_text_field', $_POST[WPT_Related::manual_name]);
-		
+	
 		// Update the meta field.
 		update_post_meta( $post_id, WPT_Related::manual_name, $related_prods_manual );
 
