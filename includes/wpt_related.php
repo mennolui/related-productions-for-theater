@@ -54,6 +54,7 @@
 		}
 
 		function get_related_prods_html() {
+			$html = '';
 			$related_prods = $this->get_related_prods();
 			if (count($related_prods) > 0) {
 				$html .= '<h3>'.__('Related productions','wpt_related').'</h3>';
@@ -69,7 +70,13 @@
 
 		function get_related_prods() {
 			global $wp_theatre;
-			$limit = $wp_theatre->related->options['wpt_related_limit'];
+			
+			// Set a default limit.
+			$limit = 5;
+
+			if (!empty($wp_theatre->related->options['wpt_related_limit'])) {
+				$limit = $wp_theatre->related->options['wpt_related_limit'];			
+			}
 
 			$related_prods = $this->get_related_prods_manual();
 			if (count($related_prods) < $limit) {
