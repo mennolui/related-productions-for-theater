@@ -56,7 +56,7 @@
 		function get_related_prods_html() {
 			$html = '';
 			$related_prods = $this->get_related_prods();
-			if (count($related_prods) > 0) {
+			if (!empty($related_prods)) {
 				$html .= '<h3>'.__('Related productions','wpt_related').'</h3>';
 				$html .= '<ul>';
 				foreach ($related_prods as $related_prod) {
@@ -79,18 +79,19 @@
 			}
 
 			$related_prods = $this->get_related_prods_manual();
-			if (count($related_prods) < $limit) {
-				// add some more
-				$related_prods = array_merge($related_prods,$this->get_related_prods_manual_after());
+			if (is_array($related_prods)) {
 				if (count($related_prods) < $limit) {
-					// add even more
-					$related_prods = array_merge($related_prods,$this->get_related_prods_category());
+					// add some more
+					$related_prods = array_merge($related_prods,$this->get_related_prods_manual_after());
+					if (count($related_prods) < $limit) {
+						// add even more
+						$related_prods = array_merge($related_prods,$this->get_related_prods_category());
+					}
 				}
+	
+				// make sure we're not over the limit
+				$related_prods = array_slice($related_prods,0,$limit);
 			}
-
-			// make sure we're not over the limit
-			$related_prods = array_slice($related_prods,0,$limit);
-
 			return $related_prods;
 		}
 
