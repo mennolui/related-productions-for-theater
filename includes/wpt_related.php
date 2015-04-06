@@ -53,22 +53,33 @@
 			return $after;
 		}
 
-		function get_related_prods_html() {
+		/**
+		 * Get the HTML for the related productions.
+		 * 
+		 * @access public
+		 * @return string
+		 */
+		public function get_related_prods_html() {
 			$html = '';
 			$related_prods = $this->get_related_prods();
 			if (!empty($related_prods)) {
 				$html .= '<h3>'.__('Related productions','wpt_related').'</h3>';
 				$html .= '<ul>';
 				foreach ($related_prods as $related_prod) {
-					$production = new WPT_Production($related_prod);
-					$html .= '<li>'.$production->html().'</li>';
+					$html .= '<li>'.$related_prod->html().'</li>';
 				}
 				$html .= '</ul>';
 			}
 			return $html;
 		}
 
-		function get_related_prods() {
+		/**
+		 * Get the related productions.
+		 * 
+		 * @access public
+		 * @return array of WP_Production objects
+		 */
+		public function get_related_prods() {
 			global $wp_theatre;
 			
 			// Set a default limit.
@@ -79,14 +90,12 @@
 			}
 
 			$related_prods = $this->get_related_prods_manual();
-			if (is_array($related_prods)) {
+			if (count($related_prods) < $limit) {
+				// add some more
+				$related_prods = array_merge($related_prods,$this->get_related_prods_manual_after());
 				if (count($related_prods) < $limit) {
-					// add some more
-					$related_prods = array_merge($related_prods,$this->get_related_prods_manual_after());
-					if (count($related_prods) < $limit) {
-						// add even more
-						$related_prods = array_merge($related_prods,$this->get_related_prods_category());
-					}
+					// add even more
+					$related_prods = array_merge($related_prods,$this->get_related_prods_category($related_prods));
 				}
 	
 				// make sure we're not over the limit
@@ -95,13 +104,28 @@
 			return $related_prods;
 		}
 
-		function get_related_prods_manual() {
+		/**
+		 * Get the productions that are related by manual selection (selected in the Production admin as 'related productions').
+		 * 
+		 * @access private
+		 * @return array of WP_Production objects
+		 */
+		private function get_related_prods_manual() {
 			global $post;
-			$related_prods_manual = get_post_meta($post->ID,WPT_Related::manual_name,true);
+
+			$related_prods_manual = array();
+
+			$related_prods_manual_ids = get_post_meta($post->ID,WPT_Related::manual_name,true);
+			if (is_array($related_prods_manual_ids)) {
+				foreach ($related_prods_manual_ids as $prod_id) {
+					$production = new WPT_Production($prod_id);
+					$related_prods_manual[] = $production;
+				}
+			}
 			return $related_prods_manual;
 		}
 
-		function get_related_prods_manual_after() {
+		private function get_related_prods_manual_after() {
 			$related_prods_manual_after = array();
 
 			/**
@@ -113,8 +137,46 @@
 			return $related_prods_manual_after;
 		}
 
-		function get_related_prods_category() {
-			//@todo: return upcoming productions from same category
-			return array();
+		/**
+		 * Get the (upcoming) productions that are related by category.
+		 * 
+		 * @since 0.1.3
+		 *
+		 * @access public
+		 * @param array $related_prods
+		 * @return array of WP_Production objects
+		 */
+		private function get_related_prods_category($related_prods) {
+			global $post;
+			global $wp_theatre;
+
+			$related_prods_category = array();
+
+			$categories = get_the_terms($post->ID, 'category');
+			if (is_array($categories)) {
+
+				// Get the categories of current post
+				$cat_ids = array();
+				foreach ($categories as $cat) {
+					$cat_ids[] = $cat->term_id;
+				}
+
+				// Exclude current post and previously found related productions
+				$exclude_ids = array();
+				$exclude_ids[] = $post->ID;
+				foreach ($related_prods as $prod) {
+					$exclude_ids[] = $prod->ID;
+				}
+
+				$args = array(
+					'cat' => implode(',', $cat_ids),
+					'post__not_in' => $exclude_ids,
+					'upcoming' => true,
+				);
+
+				$related_prods_category = $wp_theatre->productions->get($args);
+			}
+			
+			return $related_prods_category;
 		}
 	}
