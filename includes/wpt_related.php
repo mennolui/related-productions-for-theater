@@ -29,8 +29,13 @@
 			
 			$this->load_sub_classes();
 
-
-			add_filter('wpt_production_page_content_after',array($this,'wpt_production_page_content_after'));
+			/*
+			 * Display related productions after production page content.
+			 * @todo: Only add filter when user chose to in settings.
+			 * @todo: Create setting :-)
+			 * @see WPT_Related_Admin
+			 */			
+//			add_filter('wpt_production_page_content_after', array($this,'wpt_production_page_content_after'));
 
 		}
 		
@@ -63,12 +68,12 @@
 			$html = '';
 			$related_prods = $this->get_related_prods();
 			if (!empty($related_prods)) {
-				$html .= '<h3>'.__('Related productions','wpt_related').'</h3>';
-				$html .= '<ul>';
 				foreach ($related_prods as $related_prod) {
-					$html .= '<li>'.$related_prod->html().'</li>';
+					$prod_ids[] = $related_prod->ID;
 				}
-				$html .= '</ul>';
+				$prod_ids = implode(',', $prod_ids);
+				$html .= do_shortcode('[wpt_productions post__in="'.$prod_ids.'"]');
+
 			}
 			return $html;
 		}
