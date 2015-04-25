@@ -137,11 +137,17 @@ class WPT_Related_Admin {
 
 		/* OK, its safe for us to save the data now. */
 
-		// Sanitize the user input.
-		$related_prods_manual = array_map('sanitize_text_field', $_POST[WPT_Related::manual_name]);
-	
+		$related_prods_manual = array();
+		
+		if (!empty($_POST[WPT_Related::manual_name])) {
+
+			// Sanitize the user input.
+			$related_prods_manual = array_map('sanitize_text_field', $_POST[WPT_Related::manual_name]);
+
+		}
+
 		// Update the meta field.
-		update_post_meta( $post_id, WPT_Related::manual_name, $related_prods_manual );
+		update_post_meta( $post_id, WPT_Related::manual_name, $related_prods_manual );			
 
 		/**
 		 * Fires after a production is saved through the admin screen.

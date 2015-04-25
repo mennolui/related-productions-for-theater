@@ -28,6 +28,12 @@
 		
 		public function widget( $args, $instance ) {
 			global $wp_theatre;
+
+			$related_prods_html = $wp_theatre->related->get_related_prods_html();
+			
+			if (empty($related_prods_html)) {
+				return;
+			}
 	
 			echo $args['before_widget'];
 
@@ -35,7 +41,7 @@
 			if (!empty( $instance['title'])) {
 				$html.= $args['before_title'] . apply_filters('widget_title', $instance['title']). $args['after_title'];
 			}
-			$html.= $wp_theatre->related->get_related_prods_html();
+			$html.= $related_prods_html;
 
 			echo $html;
 		
