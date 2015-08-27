@@ -56,7 +56,7 @@ class WPT_Related_Admin {
 			'wpt_related_prods_manual',
 			__('Related productions','wpt_related'),
 			array($this,'meta_box_related_prods_manual'),
-			WPT_Production::post_type()->name,
+			WPT_Production::post_type_name,
 			'side'
 		); 		
 	}

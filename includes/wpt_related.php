@@ -72,7 +72,9 @@
 					$prod_ids[] = $related_prod->ID;
 				}
 				$prod_ids = implode(',', $prod_ids);
-				$html .= do_shortcode('[wpt_productions post__in="'.$prod_ids.'"]');
+				
+				$template = apply_filters('wpt/related_productions/html/template', '');
+				$html .= do_shortcode('[wpt_productions post__in="'.$prod_ids.'"]'.$template.'[/wpt_productions]');
 
 			}
 			return $html;
