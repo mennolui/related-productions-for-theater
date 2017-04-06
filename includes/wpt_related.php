@@ -129,6 +129,14 @@
 					$related_prods_manual[] = $production;
 				}
 			}
+			
+			/**
+			 * Filter the manual related prods.
+			 *
+			 * @param array  $related_prods_manual	The current manual related prods.
+			 */	
+			$related_prods_manual = apply_filters('wpt_related_prods_manual', $related_prods_manual);
+			
 			return $related_prods_manual;
 		}
 
